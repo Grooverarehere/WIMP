@@ -34,7 +34,7 @@ void AWIMPPlayerController::ForwardMovement(float Value)
 {
 	const FRotator Rotation = GetControlRotation();
 	const FRotator Yaw(0, Rotation.Yaw, 0);
-	const FVector direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::X);
+	const FVector direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::Y);
 	if (GetPawn())
 		GetPawn()->AddMovementInput(direction, Value);
 }
@@ -43,7 +43,7 @@ void AWIMPPlayerController::RightMovement(float Value)
 {
 	const FRotator Rotation = GetControlRotation();
 	const FRotator Yaw(0, Rotation.Yaw, 0);
-	const FVector direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::Y);
+	const FVector direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::X);
 	if (GetPawn())
 		GetPawn()->AddMovementInput(direction, Value);
 }
