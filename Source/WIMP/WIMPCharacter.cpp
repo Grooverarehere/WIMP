@@ -52,7 +52,7 @@ AWIMPCharacter::AWIMPCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	m_InitOrthoWidth = 3500.f;
+	m_InitOrthoWidth = 5000.f;
 }
 
 void AWIMPCharacter::BeginPlay()

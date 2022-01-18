@@ -76,3 +76,4 @@ DerivedDataCache/*
 # Ignore materials and assets 
 Content/ModularPlatforms/*
 Content/Neon_Dash/*
+Content/MS_CardboardBoxV1/*
