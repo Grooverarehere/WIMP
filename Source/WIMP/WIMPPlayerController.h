@@ -26,6 +26,7 @@ protected:
 	void Jump();
 	void Run();
 	void StopRun();
+	void ChangeCamera();
 };
 
 

@@ -37,15 +37,41 @@ AWIMPCharacter::AWIMPCharacter()
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
 	// Create a camera...
-	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	AbsoluteCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("AbsoluteCameraComponent"));
+	//TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	AbsoluteCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	ZoomCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomCameraComponent"));
+	ZoomCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
+
+	ZoomTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("ZoomTimelineComp"));
+	PCTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("PCTimelineComp"));
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	m_InitOrthoWidth = 3500.f;
+}
+
+void AWIMPCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	AbsoluteCameraComponent->OrthoWidth = m_InitOrthoWidth;
+	AbsoluteCameraPos = AbsoluteCameraComponent->GetComponentLocation();
+	UpdateZoomFloat.BindDynamic(this, &AWIMPCharacter::UpdateZoomComp);
+	UpdatePositionFloat.BindDynamic(this, &AWIMPCharacter::UpdateTimelinePosition);
+	OnTimelinePositionFinished.BindUFunction(this, "FinishedTimelinePosition");
+	if (ZoomTimelineComp)
+	{
+		ZoomTimelineComp->AddInterpFloat(ZoomTimeLineCurve, UpdateZoomFloat);
+	}
+	if (PCTimelineComp)
+	{
+		PCTimelineComp->AddInterpFloat(PositionTimelineCurve, UpdatePositionFloat);
+		PCTimelineComp->SetTimelineFinishedFunc(OnTimelinePositionFinished);
+	}
 }
 
 void AWIMPCharacter::Tick(float DeltaSeconds)
@@ -53,4 +79,44 @@ void AWIMPCharacter::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 
 	
+}
+
+void AWIMPCharacter::UpdateZoomComp(float Output)
+{
+	AbsoluteCameraComponent->OrthoWidth = m_InitOrthoWidth * Output;
+}
+
+void AWIMPCharacter::UpdateTimelinePosition(float Output)
+{
+	AbsoluteCameraComponent->SetWorldLocation(FMath::Lerp(AbsoluteCameraPos,ZoomCameraPos , Output));
+}
+
+void AWIMPCharacter::FinishedTimelinePosition()
+{
+	if (bZoom) {
+		AbsoluteCameraComponent->AttachToComponent(CameraBoom, FAttachmentTransformRules::KeepWorldTransform);
+	}
+	else {
+		AbsoluteCameraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	}
+	
+}
+
+void AWIMPCharacter::ChangeCamera()
+{
+	if (bZoom)
+	{
+		bZoom = false;
+		ZoomTimelineComp->Reverse();
+		ZoomCameraPos = AbsoluteCameraComponent->GetComponentLocation();
+		PCTimelineComp->Reverse();
+		
+	}
+	else
+	{
+		bZoom = true;
+		ZoomTimelineComp->Play();
+		ZoomCameraPos=ZoomCameraComponent->GetComponentLocation();
+		PCTimelineComp->Play();
+	}
 }
