@@ -26,7 +26,9 @@ protected:
 	void Jump();
 	void Run();
 	void StopRun();
-	void ChangeCamera();
+private:
+	float m_WalkSpeed;
+	float m_RunSpeed;
 };
 
 

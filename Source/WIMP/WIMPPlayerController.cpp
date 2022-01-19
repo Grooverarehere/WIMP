@@ -10,7 +10,8 @@
 
 AWIMPPlayerController::AWIMPPlayerController()
 {
-	
+	m_WalkSpeed = 135.f;
+	m_RunSpeed = 600.f;
 }
 
 void AWIMPPlayerController::PlayerTick(float DeltaTime)
@@ -28,7 +29,7 @@ void AWIMPPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Jump", IE_Pressed, this, &AWIMPPlayerController::Jump);
 	InputComponent->BindAction("Run", IE_Pressed, this, &AWIMPPlayerController::Run);
 	InputComponent->BindAction("Run", IE_Released, this, &AWIMPPlayerController::StopRun);
-	InputComponent->BindAction("ChangeCamera", IE_Pressed, this, &AWIMPPlayerController::ChangeCamera);
+
 }
 
 void AWIMPPlayerController::ForwardMovement(float Value)
@@ -60,22 +61,15 @@ void AWIMPPlayerController::Jump()
 void AWIMPPlayerController::Run()
 {
 	if (GetPawn()) {
-		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 500.f;
+		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 	}
 }
 
 void AWIMPPlayerController::StopRun()
 {
 	if (GetPawn()) {
-		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 135.f;
+		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 	}
 }
 
-void AWIMPPlayerController::ChangeCamera()
-{
-	AWIMPCharacter* character = Cast<AWIMPCharacter>(GetPawn());
-	if (character->IsValidLowLevel())
-	{
-		character->ChangeCamera();
-	}
-}
+
