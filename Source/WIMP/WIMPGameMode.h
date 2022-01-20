@@ -13,6 +13,15 @@ class AWIMPGameMode : public AGameModeBase
 
 public:
 	AWIMPGameMode();
+
+private:
+	FVector InitPosition;
+	FRotator InitRotation;
+
+	virtual void BeginPlay() override;
+	UFUNCTION()
+		void Respawn(AActor* actor);
+	void BindRespawn();
 };
 
 

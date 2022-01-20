@@ -11,7 +11,7 @@
 AWIMPPlayerController::AWIMPPlayerController()
 {
 	m_WalkSpeed = 135.f;
-	m_RunSpeed = 600.f;
+	m_RunSpeed = 700.f;
 }
 
 void AWIMPPlayerController::PlayerTick(float DeltaTime)
