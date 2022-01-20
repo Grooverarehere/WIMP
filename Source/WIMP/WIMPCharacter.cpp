@@ -39,7 +39,7 @@ AWIMPCharacter::AWIMPCharacter()
 	ZoomCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ZoomCameraComponent"));
 	ZoomCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
-
+	MaterializeTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimelineComponent"));
 	
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -50,6 +50,23 @@ AWIMPCharacter::AWIMPCharacter()
 void AWIMPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	Hair=GetMesh()->CreateDynamicMaterialInstance(0, GetMesh()->GetMaterial(0));
+	Skin=GetMesh()->CreateDynamicMaterialInstance(1, GetMesh()->GetMaterial(1));
+	Outfit=GetMesh()->CreateDynamicMaterialInstance(2, GetMesh()->GetMaterial(2));
+	UpdateFunctionFloat.BindDynamic(this, &AWIMPCharacter::UpdateTimelineFunction);
+	if (MaterializeTimelineComponent)
+	{
+		MaterializeTimelineComponent->AddInterpFloat(MaterializeTimelineCurve, UpdateFunctionFloat);
+	}
+	MaterializeTimelineComponent->Play();
+}
+
+void AWIMPCharacter::UpdateTimelineFunction(float Output)
+{
+	Hair->SetScalarParameterValue("Materialize Amount", Output);
+	Skin->SetScalarParameterValue("Materialize Amount", Output);
+	Outfit->SetScalarParameterValue("Materialize Amount", Output);
 	
 }
 

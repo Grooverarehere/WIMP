@@ -20,7 +20,8 @@ public:
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	
+	UPROPERTY(EditAnywhere)
+		UCurveFloat* MaterializeTimelineCurve;
 
 private:
 	/** Top down camera */
@@ -29,9 +30,17 @@ private:
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+	UPROPERTY(VisibleAnywhere)
+		UTimelineComponent* MaterializeTimelineComponent;
+	FOnTimelineFloat UpdateFunctionFloat;
 	
+	UMaterialInstanceDynamic* Hair;
+	UMaterialInstanceDynamic* Skin;
+	UMaterialInstanceDynamic* Outfit;
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+		void UpdateTimelineFunction(float Output);
 	
 };
 
