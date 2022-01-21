@@ -14,6 +14,13 @@ AWIMPPlayerController::AWIMPPlayerController()
 	m_RunSpeed = 700.f;
 }
 
+void AWIMPPlayerController::BeginPlay()
+{
+	m_RunSpeed = Cast<AWIMPCharacter>(GetCharacter())->m_RunSpeed;
+	m_WalkSpeed = Cast<AWIMPCharacter>(GetCharacter())->m_WalkSpeed;
+	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+}
+
 void AWIMPPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);

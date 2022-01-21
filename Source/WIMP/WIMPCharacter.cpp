@@ -44,7 +44,7 @@ AWIMPCharacter::AWIMPCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
-
+	
 }
 
 void AWIMPCharacter::BeginPlay()
@@ -74,5 +74,6 @@ void AWIMPCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+	UE_LOG(LogTemp, Warning, TEXT("Speed:%f"),GetCharacterMovement()->MaxWalkSpeed);
 	
 }

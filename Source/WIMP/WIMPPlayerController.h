@@ -13,9 +13,10 @@ class AWIMPPlayerController : public APlayerController
 
 public:
 	AWIMPPlayerController();
-
+	float m_WalkSpeed;
+	float m_RunSpeed;
 protected:
-	
+	virtual void BeginPlay() override;
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
@@ -27,8 +28,7 @@ protected:
 	void Run();
 	void StopRun();
 private:
-	float m_WalkSpeed;
-	float m_RunSpeed;
+	
 };
 
 
