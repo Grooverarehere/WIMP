@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "WIMPCharacter.generated.h"
 
 UCLASS(Blueprintable)
@@ -26,6 +27,8 @@ public:
 		float m_WalkSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
 		float m_RunSpeed;
+	UPROPERTY(EditAnywhere)
+		class UParticleSystemComponent* SpawnEffect;
 private:
 	/** Top down camera */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
