@@ -56,6 +56,9 @@ void AWIMPCharacter::BeginPlay()
 	Hair=GetMesh()->CreateDynamicMaterialInstance(0, GetMesh()->GetMaterial(0));
 	Skin=GetMesh()->CreateDynamicMaterialInstance(1, GetMesh()->GetMaterial(1));
 	Outfit=GetMesh()->CreateDynamicMaterialInstance(2, GetMesh()->GetMaterial(2));
+	Hair->SetScalarParameterValue("Z_Location",GetActorLocation().Z);
+	Skin->SetScalarParameterValue("Z_Location", GetActorLocation().Z);
+	Outfit->SetScalarParameterValue("Z_Location", GetActorLocation().Z);
 	UpdateFunctionFloat.BindDynamic(this, &AWIMPCharacter::UpdateTimelineFunction);
 	if (MaterializeTimelineComponent)
 	{
@@ -66,9 +69,9 @@ void AWIMPCharacter::BeginPlay()
 
 void AWIMPCharacter::UpdateTimelineFunction(float Output)
 {
-	Hair->SetScalarParameterValue("Materialize Amount", Output);
-	Skin->SetScalarParameterValue("Materialize Amount", Output);
-	Outfit->SetScalarParameterValue("Materialize Amount", Output);
+	Hair->SetScalarParameterValue("Dissolve_Amount", Output);
+	Skin->SetScalarParameterValue("Dissolve_Amount", Output);
+	Outfit->SetScalarParameterValue("Dissolve_Amount", Output);
 	
 }
 
