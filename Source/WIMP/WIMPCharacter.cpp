@@ -40,9 +40,7 @@ AWIMPCharacter::AWIMPCharacter()
 	ZoomCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
 	MaterializeTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimelineComponent"));
-	
-	SpawnEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("SpawnEffect"));
-	SpawnEffect->SetupAttachment(RootComponent);
+		
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -65,6 +63,11 @@ void AWIMPCharacter::BeginPlay()
 		MaterializeTimelineComponent->AddInterpFloat(MaterializeTimelineCurve, UpdateFunctionFloat);
 	}
 	MaterializeTimelineComponent->Play();
+	if (SpawnEffect->IsValidLowLevel()) {
+		FVector NiagaraLocation = GetActorLocation();
+		NiagaraLocation.Z -= 150.f;
+		UNiagaraComponent* SpawnNiagara = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), SpawnEffect, NiagaraLocation, GetActorRotation(), GetActorScale());
+	}
 }
 
 void AWIMPCharacter::UpdateTimelineFunction(float Output)
