@@ -76,6 +76,6 @@ void AWIMPCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-	UE_LOG(LogTemp, Warning, TEXT("Speed:%f"),GetCharacterMovement()->MaxWalkSpeed);
+	
 	
 }

@@ -22,10 +22,9 @@ public:
 		class UStaticMeshComponent* SM_DoorFrame_1;
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* SM_DoorFrame_2;
-	UPROPERTY(EditAnywhere)
-		float TimeToOpen;
+	
 protected:
-	FTimerHandle OpenHandle;
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -33,8 +32,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 		void CloseDoor();
 	UFUNCTION(BlueprintImplementableEvent)
-	void OpenDoor();
+		void OpenDoor();
 };

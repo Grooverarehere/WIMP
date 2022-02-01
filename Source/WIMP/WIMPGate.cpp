@@ -33,9 +33,5 @@ void AWIMPGate::Tick(float DeltaTime)
 
 }
 
-void AWIMPGate::CloseDoor_Implementation()
-{
-	
-	GetWorldTimerManager().SetTimer(OpenHandle, this, &AWIMPGate::OpenDoor, TimeToOpen, false);
-}
+
 
