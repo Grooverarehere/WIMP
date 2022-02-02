@@ -17,7 +17,7 @@ AWIMPGate::AWIMPGate()
 
 	SM_DoorFrame_2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_DoorFrame_2"));
 	SM_DoorFrame_2->SetupAttachment(SK_DoorFrame,"Bone_door_LSocket");
-
+	bClosed = false;
 }
 
 // Called when the game starts or when spawned

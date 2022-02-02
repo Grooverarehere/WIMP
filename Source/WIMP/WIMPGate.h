@@ -22,7 +22,7 @@ public:
 		class UStaticMeshComponent* SM_DoorFrame_1;
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* SM_DoorFrame_2;
-	
+	bool bClosed;
 protected:
 	
 	// Called when the game starts or when spawned

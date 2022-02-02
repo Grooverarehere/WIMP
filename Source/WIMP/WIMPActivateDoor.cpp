@@ -16,7 +16,7 @@ AWIMPActivateDoor::AWIMPActivateDoor()
 
 	ActivatorCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("ActivatorCollision"));
 	ActivatorCollision->SetupAttachment(RootComponent);
-	ActivatorCollision->SetGenerateOverlapEvents(false);
+	ActivatorCollision->SetGenerateOverlapEvents(true);
 
 	SM_Laser_1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Laser_1"));
 	SM_Laser_1->SetupAttachment(RootComponent);
@@ -30,15 +30,6 @@ void AWIMPActivateDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	ActivatorCollision->OnComponentBeginOverlap.AddDynamic(this,&AWIMPActivateDoor::OnBeginOverlap);
-	for (int i = 0; i < 4; i++)
-	{
-		UParticleSystemComponent *laser = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PS_Laser, FVector(0, 0, 0), FRotator(0, 0, 0), true, EPSCPoolMethod::None, false);
-		laser->SetBeamSourcePoint(0, SM_Laser_1->GetSocketLocation("Socket" + i),0);
-		laser->SetBeamEndPoint(0, SM_Laser_2->GetSocketLocation("Socket" + i));
-		LaserArray.Add(laser);
-		
-	}
-	
 	ActivateActivator(Active);
 }
 
@@ -46,7 +37,16 @@ void AWIMPActivateDoor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 {
 	if (Cast<AWIMPCharacter>(OtherActor))
 	{
-		OperationGate->CloseDoor();
+		if (!OperationGate->bClosed) {
+			OperationGate->CloseDoor();
+			OperationGate->bClosed = true;
+		}
+		else {
+			OperationGate->OpenDoor();
+			OperationGate->bClosed = false;
+		}
+		ActivateActivator(false);
+		OtherDoor->ActivateActivator(true);
 	}
 }
 
@@ -57,13 +57,32 @@ void AWIMPActivateDoor::Tick(float DeltaTime)
 
 }
 
-void AWIMPActivateDoor::ActivateActivator(bool value)
+void AWIMPActivateDoor::ActivateActivator(bool bActive)
 {
-	UE_LOG(LogTemp, Warning, TEXT("value:%s"),value? "true" : "false");
-	ActivatorCollision->SetGenerateOverlapEvents(value);
-	for (int i = 0; i < LaserArray.Num(); i++)
-	{
-		LaserArray[i]->Activate(value);
-	}
+	
+
+		if (!bActive) {
+			ActivatorCollision->SetCollisionResponseToChannels(ECR_Ignore);
+			if (LaserArray.Num() > 0) {
+				for (int i = 0; i < LaserArray.Num(); i++) {
+					LaserArray[i]->DestroyComponent();
+				}
+				LaserArray.Empty();
+			}
+		}
+		else {
+			ActivatorCollision->SetCollisionResponseToChannels(ECR_Overlap);
+			for (int i = 0; i < 4; i++) {
+				if (PS_Laser->IsValidLowLevel()) {
+					UParticleSystemComponent* laser = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PS_Laser, FVector(0, 0, 0), FRotator(0, 0, 0), true, EPSCPoolMethod::None, true);
+					FString socket = "Socket";
+					socket.AppendInt(i);
+					laser->SetBeamSourcePoint(0, SM_Laser_1->GetSocketLocation(FName(socket)), 0);
+					laser->SetBeamEndPoint(0, SM_Laser_2->GetSocketLocation(FName(socket)));
+					LaserArray.Add(laser);
+				}
+			}
+		}
+	
 }
 

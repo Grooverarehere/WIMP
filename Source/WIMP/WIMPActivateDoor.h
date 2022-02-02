@@ -35,8 +35,9 @@ public:
 		bool Active;
 	UPROPERTY(EditAnywhere)
 		AWIMPActivateDoor* OtherDoor;
-protected:
 	TArray<UParticleSystemComponent*>LaserArray;
+protected:
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -46,5 +47,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void ActivateActivator(bool value);
+	void ActivateActivator(bool bActive);
 };
