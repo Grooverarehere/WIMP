@@ -29,26 +29,10 @@ AWIMPActivateDoor::AWIMPActivateDoor()
 void AWIMPActivateDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	ActivatorCollision->OnComponentBeginOverlap.AddDynamic(this,&AWIMPActivateDoor::OnBeginOverlap);
-	ActivateActivator(Active);
+	ActivateActivator();
 }
 
-void AWIMPActivateDoor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (Cast<AWIMPCharacter>(OtherActor))
-	{
-		if (!OperationGate->bClosed) {
-			OperationGate->CloseDoor();
-			OperationGate->bClosed = true;
-		}
-		else {
-			OperationGate->OpenDoor();
-			OperationGate->bClosed = false;
-		}
-		ActivateActivator(false);
-		OtherDoor->ActivateActivator(true);
-	}
-}
+
 
 // Called every frame
 void AWIMPActivateDoor::Tick(float DeltaTime)
@@ -57,11 +41,11 @@ void AWIMPActivateDoor::Tick(float DeltaTime)
 
 }
 
-void AWIMPActivateDoor::ActivateActivator(bool bActive)
+void AWIMPActivateDoor::ActivateActivator()
 {
 	
 
-		if (!bActive) {
+		if (!Active) {
 			ActivatorCollision->SetCollisionResponseToChannels(ECR_Ignore);
 			if (LaserArray.Num() > 0) {
 				for (int i = 0; i < LaserArray.Num(); i++) {

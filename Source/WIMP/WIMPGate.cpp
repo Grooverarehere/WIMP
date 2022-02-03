@@ -2,6 +2,7 @@
 
 
 #include "WIMPGate.h"
+#include "WIMPCharacter.h"
 
 // Sets default values
 AWIMPGate::AWIMPGate()
@@ -24,6 +25,27 @@ AWIMPGate::AWIMPGate()
 void AWIMPGate::BeginPlay()
 {
 	Super::BeginPlay();
+	ActivatorDoor_1->ActivatorCollision->OnComponentBeginOverlap.AddDynamic(this, &AWIMPGate::OnActivatorOverlap);
+	ActivatorDoor_2->ActivatorCollision->OnComponentBeginOverlap.AddDynamic(this, &AWIMPGate::OnActivatorOverlap);
+}
+
+void AWIMPGate::OnActivatorOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (Cast<AWIMPCharacter>(OtherActor))
+	{
+		if (!bClosed) {
+			CloseDoor();
+			bClosed = true;
+		}
+		else {
+			OpenDoor();
+			bClosed = false;
+		}
+		ActivatorDoor_1->Active = !ActivatorDoor_1->Active;
+		ActivatorDoor_2->Active = !ActivatorDoor_2->Active;
+		ActivatorDoor_1->ActivateActivator();
+		ActivatorDoor_2->ActivateActivator();
+	}
 }
 
 // Called every frame
