@@ -40,6 +40,9 @@ AWIMPCharacter::AWIMPCharacter()
 	ZoomCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
 	MaterializeTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimelineComponent"));
+
+	RespawnSound = CreateDefaultSubobject<UAudioComponent>(TEXT("RespawnSound"));
+	RespawnSound->SetupAttachment(RootComponent);
 		
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;

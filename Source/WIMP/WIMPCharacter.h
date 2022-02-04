@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/AudioComponent.h"
 #include "WIMPCharacter.generated.h"
 
 UCLASS(Blueprintable)
@@ -31,6 +32,8 @@ public:
 		float m_RunSpeed;
 	UPROPERTY(EditAnywhere)
 		class UNiagaraSystem* SpawnEffect;
+	UPROPERTY(EditAnywhere)
+		UAudioComponent* RespawnSound;
 private:
 	/** Top down camera */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
