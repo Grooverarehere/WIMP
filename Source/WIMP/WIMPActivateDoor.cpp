@@ -43,8 +43,6 @@ void AWIMPActivateDoor::Tick(float DeltaTime)
 
 void AWIMPActivateDoor::ActivateActivator()
 {
-	
-
 		if (!Active) {
 			ActivatorCollision->SetCollisionResponseToChannels(ECR_Ignore);
 			if (LaserArray.Num() > 0) {
