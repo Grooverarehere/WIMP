@@ -40,6 +40,7 @@ AWIMPCharacter::AWIMPCharacter()
 	ZoomCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	
 	MaterializeTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimelineComponent"));
+	DestroyTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("DestroyTimelineComponent"));
 
 	RespawnSound = CreateDefaultSubobject<UAudioComponent>(TEXT("RespawnSound"));
 	RespawnSound->SetupAttachment(RootComponent);
@@ -61,9 +62,15 @@ void AWIMPCharacter::BeginPlay()
 	Skin->SetScalarParameterValue("Z_Location", GetActorLocation().Z);
 	Outfit->SetScalarParameterValue("Z_Location", GetActorLocation().Z);
 	UpdateFunctionFloat.BindDynamic(this, &AWIMPCharacter::UpdateTimelineFunction);
+	FinishedFunctionFloat.BindUFunction(this, "FinishedTimelineFunction");
 	if (MaterializeTimelineComponent)
 	{
 		MaterializeTimelineComponent->AddInterpFloat(MaterializeTimelineCurve, UpdateFunctionFloat);
+	}
+	if (DestroyTimelineComponent)
+	{
+		DestroyTimelineComponent->AddInterpFloat(DestroyTimelineCurve, UpdateFunctionFloat);
+		DestroyTimelineComponent->SetTimelineFinishedFunc(FinishedFunctionFloat);
 	}
 	MaterializeTimelineComponent->Play();
 	if (SpawnEffect->IsValidLowLevel()) {
@@ -79,6 +86,11 @@ void AWIMPCharacter::UpdateTimelineFunction(float Output)
 	Skin->SetScalarParameterValue("Dissolve_Amount", Output);
 	Outfit->SetScalarParameterValue("Dissolve_Amount", Output);
 	
+}
+
+void AWIMPCharacter::FinishedTimelineFunction()
+{
+	Destroy();
 }
 
 void AWIMPCharacter::Tick(float DeltaSeconds)

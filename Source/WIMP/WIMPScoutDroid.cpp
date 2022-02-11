@@ -2,6 +2,7 @@
 
 
 #include "WIMPScoutDroid.h"
+#include "WIMPCharacter.h"
 
 // Sets default values
 AWIMPScoutDroid::AWIMPScoutDroid()
@@ -14,51 +15,83 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
+	Mesh->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	Light = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Light"));
 	Light->SetupAttachment(Mesh);
 
 	Jet_Front = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front"));
 	Jet_Front->SetupAttachment(Mesh);
+	Jet_Front->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Front_Right = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front_Right"));
 	Jet_Front_Right->SetupAttachment(Mesh);
+	Jet_Front_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Front_Left = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front_Left"));
 	Jet_Front_Left->SetupAttachment(Mesh);
+	Jet_Front_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Back = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back"));
 	Jet_Back->SetupAttachment(Mesh);
+	Jet_Back->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Back_Right = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back_Right"));
 	Jet_Back_Right->SetupAttachment(Mesh);
+	Jet_Back_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Back_Left = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back_Left"));
 	Jet_Back_Left->SetupAttachment(Mesh);
+	Jet_Back_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+
+	ActivatePlasma = FVector(1.f, 1.f, 1.f);
+	DeactivatePlasma = FVector(0.7f, 0.7f, 0.4f);
 
 	PS_Jet_Front = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Jet_Front"));
 	PS_Jet_Front->SetupAttachment(Mesh);
-	
+	PS_Jet_Front->SetRelativeScale3D(ActivatePlasma);
 
 	PS_Jet_Front_Right = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Jet_Front_Right"));
 	PS_Jet_Front_Right->SetupAttachment(Mesh);
-	
+	PS_Jet_Front_Right->SetRelativeScale3D(ActivatePlasma);
 
 	PS_Jet_Front_Left = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Jet_Front_Left"));
 	PS_Jet_Front_Left->SetupAttachment(Mesh);
-	
+	PS_Jet_Front_Left->SetRelativeScale3D(ActivatePlasma);
 
 	PS_Jet_Back = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Jet_Back"));
 	PS_Jet_Back->SetupAttachment(Mesh);
-	
+	PS_Jet_Back->SetRelativeScale3D(ActivatePlasma);
 
 	PS_Jet_Back_Right = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Jet_Back_Right"));
 	PS_Jet_Back_Right->SetupAttachment(Mesh);
-	
+	PS_Jet_Back_Right->SetRelativeScale3D(ActivatePlasma);
 
 	PS_Jet_Back_Left = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Jet_Back_Left"));
 	PS_Jet_Back_Left->SetupAttachment(Mesh);
+	PS_Jet_Back_Left->SetRelativeScale3D(ActivatePlasma);
+
+	PS_Tesla_Top = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Top"));
+	PS_Tesla_Top->SetupAttachment(Mesh);
+
+	PS_Tesla_Bottom = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Bottom"));
+	PS_Tesla_Bottom->SetupAttachment(Mesh);
+
+	PS_Tesla_Back = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Back"));
+	PS_Tesla_Back->SetupAttachment(Mesh);
+
+	PS_Tesla_Right = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Right"));
+	PS_Tesla_Right->SetupAttachment(Mesh);
+
+	PS_Tesla_Left = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Left"));
+	PS_Tesla_Left->SetupAttachment(Mesh);
+
+	PS_Lighting = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Lighting"));
+	PS_Lighting->SetupAttachment(Mesh);
+	PS_Lighting->bAutoActivate = false;
 	MovementTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("MovementTimelineComponent"));
+	bOnHit = false;
 }
 
 // Called when the game starts or when spawned
@@ -85,6 +118,7 @@ void AWIMPScoutDroid::BeginPlay()
 	Jet_Back->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Back_Right->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Back_Left->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
+	ChangePlasma();
 }
 
 void AWIMPScoutDroid::UpdateTimelineFunction(float Output)
@@ -100,37 +134,96 @@ void AWIMPScoutDroid::FinishedTimelineFunction()
 			
 				MovementTimelineComponent->Reverse();
 				E_Movement_Type = MovementType::UP_END;
+				ChangePlasma();
 				break;
 		case MovementType::UP_END:
 			
 				EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y + Distance, Mesh->GetRelativeLocation().Z);
 				E_Movement_Type = MovementType::SLIDE_START;
 				MovementTimelineComponent->Play();
-			
+				ChangePlasma();
 			break;
 		case MovementType::SLIDE_START:
 			
 				MovementTimelineComponent->Reverse();
 				E_Movement_Type = MovementType::SLIDE_END;
+				ChangePlasma();
 				break;
 		case MovementType::SLIDE_END:
 			
 				EndPosition = FVector(Mesh->GetRelativeLocation().X + Distance, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z);
 				E_Movement_Type = MovementType::FRONT_START;
 				MovementTimelineComponent->Play();
+				ChangePlasma();
 			break;
 		case MovementType::FRONT_START:
 			
 				MovementTimelineComponent->Reverse();
 				E_Movement_Type = MovementType::FRONT_END;
+				ChangePlasma();
 				break;
 		case MovementType::FRONT_END:
 				EndPosition = EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z + Distance);
 				E_Movement_Type = MovementType::UP_START;
 				MovementTimelineComponent->Play();
-			
+				ChangePlasma();
 			break;
 		}
+}
+
+void AWIMPScoutDroid::ChangePlasma()
+{
+	switch (E_Movement_Type)
+	{
+	case MovementType::UP_START:
+		PS_Jet_Front->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Right->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Front_Left->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back_Right->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Left->SetRelativeScale3D(DeactivatePlasma);
+		break;
+	case MovementType::UP_END:
+		PS_Jet_Front->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Front_Right->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Left->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Right->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back_Left->SetRelativeScale3D(ActivatePlasma);
+		break;
+	case MovementType::SLIDE_START:
+		PS_Jet_Front->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Right->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Left->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Right->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Left->SetRelativeScale3D(ActivatePlasma);
+		break;
+	case MovementType::SLIDE_END:
+		PS_Jet_Front->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Right->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Front_Left->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Right->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back_Left->SetRelativeScale3D(DeactivatePlasma);
+		break;
+	case MovementType::FRONT_START:
+		PS_Jet_Front->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Right->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Front_Left->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back_Right->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back_Left->SetRelativeScale3D(ActivatePlasma);
+		break;
+	case MovementType::FRONT_END:
+		PS_Jet_Front->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Front_Right->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Front_Left->SetRelativeScale3D(ActivatePlasma);
+		PS_Jet_Back->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Right->SetRelativeScale3D(DeactivatePlasma);
+		PS_Jet_Back_Left->SetRelativeScale3D(DeactivatePlasma);
+		break;
+	}
 }
 
 // Called every frame
@@ -138,5 +231,16 @@ void AWIMPScoutDroid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+}
+
+void AWIMPScoutDroid::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	AWIMPCharacter* character = Cast<AWIMPCharacter>(OtherActor);
+	if (character->IsValidLowLevel()&&!bOnHit)
+	{
+		bOnHit = true;
+		character->DestroyTimelineComponent->Play();
+		PS_Lighting->ActivateSystem();
+	}
 }
 

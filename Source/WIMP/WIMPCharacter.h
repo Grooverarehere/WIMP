@@ -34,6 +34,10 @@ public:
 		class UNiagaraSystem* SpawnEffect;
 	UPROPERTY(EditAnywhere)
 		UAudioComponent* RespawnSound;
+	UPROPERTY(VisibleAnywhere)
+		UTimelineComponent* DestroyTimelineComponent;
+	UPROPERTY(EditAnywhere)
+		UCurveFloat* DestroyTimelineCurve;
 private:
 	/** Top down camera */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -44,6 +48,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		UTimelineComponent* MaterializeTimelineComponent;
 	FOnTimelineFloat UpdateFunctionFloat;
+	FOnTimelineEventStatic FinishedFunctionFloat;
 	
 	UMaterialInstanceDynamic* Hair;
 	UMaterialInstanceDynamic* Skin;
@@ -52,6 +57,8 @@ private:
 
 	UFUNCTION()
 		void UpdateTimelineFunction(float Output);
+	UFUNCTION()
+		void FinishedTimelineFunction();
 	
 };
 

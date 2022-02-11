@@ -58,6 +58,18 @@ public:
 		class UParticleSystemComponent* PS_Jet_Back_Right;
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		class UParticleSystemComponent* PS_Jet_Back_Left;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* PS_Tesla_Top;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* PS_Tesla_Bottom;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* PS_Tesla_Back;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* PS_Tesla_Right;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* PS_Tesla_Left;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class UParticleSystemComponent* PS_Lighting;
 	UPROPERTY(EditAnywhere)
 		float Distance;
 	UPROPERTY(EditAnywhere)
@@ -70,6 +82,9 @@ protected:
 	FVector EndPosition;
 	FOnTimelineEventStatic FinishedFunctionFloat;
 	MovementType E_Movement_Type;
+	FVector ActivatePlasma;
+	FVector DeactivatePlasma;
+	bool bOnHit;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -78,6 +93,10 @@ protected:
 		void UpdateTimelineFunction(float Output);
 	UFUNCTION()
 		void FinishedTimelineFunction();
+	UFUNCTION()
+		void ChangePlasma();
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
