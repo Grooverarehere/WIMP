@@ -90,7 +90,13 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 	PS_Lighting = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Lighting"));
 	PS_Lighting->SetupAttachment(Mesh);
 	PS_Lighting->bAutoActivate = false;
+
 	MovementTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("MovementTimelineComponent"));
+
+	DroidDetection = CreateDefaultSubobject<USphereComponent>(TEXT("DroidDetection"));
+	DroidDetection->SetupAttachment(Mesh);
+	DroidDetection->SetGenerateOverlapEvents(true);
+
 	bOnHit = false;
 }
 
@@ -99,8 +105,8 @@ void AWIMPScoutDroid::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InitPosition = Mesh->GetRelativeLocation();
-	EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z+Distance);
+	//InitPosition = Mesh->GetRelativeLocation();
+	//EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z+Distance);
 	UpdateFunctionFloat.BindDynamic(this, &AWIMPScoutDroid::UpdateTimelineFunction);
 	FinishedFunctionFloat.BindUFunction(this,"FinishedTimelineFunction");
 	if (MovementTimelineComponent)
@@ -108,8 +114,7 @@ void AWIMPScoutDroid::BeginPlay()
 		MovementTimelineComponent->AddInterpFloat(MovementTimelineCurve, UpdateFunctionFloat);
 		MovementTimelineComponent->SetTimelineFinishedFunc(FinishedFunctionFloat);
 	}
-	MovementTimelineComponent->Play();
-	E_Movement_Type = MovementType::UP_START;
+	//E_Movement_Type = MovementType::UP_START;
 	Mesh->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Light->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Front->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
@@ -118,7 +123,9 @@ void AWIMPScoutDroid::BeginPlay()
 	Jet_Back->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Back_Right->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Back_Left->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
-	ChangePlasma();
+	DroidDetection->OnComponentBeginOverlap.AddDynamic(this, &AWIMPScoutDroid::OnDetection);
+	DroidDetection->OnComponentEndOverlap.AddDynamic(this, &AWIMPScoutDroid::OnStopDetection);
+	InitDroid();
 }
 
 void AWIMPScoutDroid::UpdateTimelineFunction(float Output)
@@ -128,51 +135,87 @@ void AWIMPScoutDroid::UpdateTimelineFunction(float Output)
 
 void AWIMPScoutDroid::FinishedTimelineFunction()
 {
+	switch (E_Droid_Type)
+	{
+	case DroidType::THREE_MOVEMENT:
+
 		switch (E_Movement_Type)
 		{
 		case MovementType::UP_START:
-			
-				MovementTimelineComponent->Reverse();
-				E_Movement_Type = MovementType::UP_END;
-				ChangePlasma();
-				break;
+
+			MovementTimelineComponent->Reverse();
+			E_Movement_Type = MovementType::UP_END;
+			ChangePlasma();
+			break;
 		case MovementType::UP_END:
-			
-				EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y + Distance, Mesh->GetRelativeLocation().Z);
-				E_Movement_Type = MovementType::SLIDE_START;
-				MovementTimelineComponent->Play();
-				ChangePlasma();
+
+			EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y + Distance, Mesh->GetRelativeLocation().Z);
+			E_Movement_Type = MovementType::SLIDE_START;
+			MovementTimelineComponent->Play();
+			ChangePlasma();
 			break;
 		case MovementType::SLIDE_START:
-			
-				MovementTimelineComponent->Reverse();
-				E_Movement_Type = MovementType::SLIDE_END;
-				ChangePlasma();
-				break;
+
+			MovementTimelineComponent->Reverse();
+			E_Movement_Type = MovementType::SLIDE_END;
+			ChangePlasma();
+			break;
 		case MovementType::SLIDE_END:
-			
-				EndPosition = FVector(Mesh->GetRelativeLocation().X + Distance, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z);
-				E_Movement_Type = MovementType::FRONT_START;
-				MovementTimelineComponent->Play();
-				ChangePlasma();
+
+			EndPosition = FVector(Mesh->GetRelativeLocation().X + Distance, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z);
+			E_Movement_Type = MovementType::FRONT_START;
+			MovementTimelineComponent->Play();
+			ChangePlasma();
 			break;
 		case MovementType::FRONT_START:
-			
-				MovementTimelineComponent->Reverse();
-				E_Movement_Type = MovementType::FRONT_END;
-				ChangePlasma();
-				break;
+
+			MovementTimelineComponent->Reverse();
+			E_Movement_Type = MovementType::FRONT_END;
+			ChangePlasma();
+			break;
 		case MovementType::FRONT_END:
-				EndPosition = EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z + Distance);
-				E_Movement_Type = MovementType::UP_START;
-				MovementTimelineComponent->Play();
-				ChangePlasma();
+			EndPosition = EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z + Distance);
+			E_Movement_Type = MovementType::UP_START;
+			MovementTimelineComponent->Play();
+			ChangePlasma();
 			break;
 		}
+		break;
+	case DroidType::SLIDE_MOVEMENT:
+		if (E_Movement_Type == MovementType::SLIDE_START)
+		{
+			MovementTimelineComponent->Reverse();
+			E_Movement_Type = MovementType::SLIDE_END;
+			ChangePlasma();
+		}
+		else
+		{
+			
+			E_Movement_Type = MovementType::SLIDE_START;
+			MovementTimelineComponent->Play();
+			ChangePlasma();
+		}
+		break;
+	case DroidType::UP_MOVEMENT:
+		if (E_Movement_Type == MovementType::UP_START)
+		{
+			MovementTimelineComponent->Reverse();
+			E_Movement_Type = MovementType::UP_END;
+			ChangePlasma();
+		}
+		else
+		{
+			E_Movement_Type = MovementType::UP_START;
+			MovementTimelineComponent->Play();
+			ChangePlasma();
+		}
+		break;
+	}
 }
 
 void AWIMPScoutDroid::ChangePlasma()
 {
+	
 	switch (E_Movement_Type)
 	{
 	case MovementType::UP_START:
@@ -241,6 +284,53 @@ void AWIMPScoutDroid::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 		bOnHit = true;
 		character->DestroyTimelineComponent->Play();
 		PS_Lighting->ActivateSystem();
+		bOnHit = false;
 	}
+}
+
+void AWIMPScoutDroid::OnDetection(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AWIMPCharacter* character = Cast<AWIMPCharacter>(OtherActor);
+	if (character->IsValidLowLevel())
+	{
+		if (E_Movement_Type == MovementType::UP_START || E_Movement_Type == MovementType::SLIDE_START || E_Movement_Type == MovementType::FRONT_START) {
+			MovementTimelineComponent->Play();
+			ChangePlasma();
+		}
+		else {
+			MovementTimelineComponent->Reverse();
+			ChangePlasma();
+		}
+	}
+}
+
+void AWIMPScoutDroid::OnStopDetection(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	AWIMPCharacter* character = Cast<AWIMPCharacter>(OtherActor);
+	if (character->IsValidLowLevel())
+	{
+		MovementTimelineComponent->Stop();
+	}
+}
+
+void AWIMPScoutDroid::InitDroid()
+{
+	InitPosition = Mesh->GetRelativeLocation();
+	switch (E_Droid_Type)
+	{
+	case DroidType::THREE_MOVEMENT:
+		EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z + Distance);
+		E_Movement_Type = MovementType::UP_START;
+		break;
+	case DroidType::SLIDE_MOVEMENT:
+		EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y + Distance, Mesh->GetRelativeLocation().Z);
+		E_Movement_Type = MovementType::SLIDE_START;
+		break;
+	case DroidType::UP_MOVEMENT:
+		EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z + Distance);
+		E_Movement_Type = MovementType::UP_START;
+		break;
+	}
+	
 }
 

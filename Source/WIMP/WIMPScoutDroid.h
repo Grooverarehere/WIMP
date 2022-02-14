@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/SphereComponent.h"
 #include "WIMPScoutDroid.generated.h"
 
 UENUM(BlueprintType)
@@ -17,6 +18,13 @@ enum class MovementType : uint8 {
 	FRONT_START = 4 UMETA(DisplayName = "FRONT_START"),
 	FRONT_END = 5 UMETA(DisplayName = "FRONT_END")
 
+};
+
+UENUM(BlueprintType)
+enum class DroidType : uint8 {
+	THREE_MOVEMENT = 0 UMETA(DisplayName = "THREE_MOVEMENT"),
+	SLIDE_MOVEMENT = 1 UMETA(DisplayName = "SLIDE_MOVEMENT"),
+	UP_MOVEMENT = 2 UMETA(DisplayName = "UP_MOVEMENT")
 };
 
 UCLASS()
@@ -74,6 +82,10 @@ public:
 		float Distance;
 	UPROPERTY(EditAnywhere)
 		UCurveFloat* MovementTimelineCurve;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class USphereComponent* DroidDetection;
+	UPROPERTY(EditAnywhere)
+		DroidType E_Droid_Type;
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UTimelineComponent* MovementTimelineComponent;
@@ -96,7 +108,13 @@ protected:
 	UFUNCTION()
 		void ChangePlasma();
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION()
+		void OnDetection(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void OnStopDetection(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION()
+		void InitDroid();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
