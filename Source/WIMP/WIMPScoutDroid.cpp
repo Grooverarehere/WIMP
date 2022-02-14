@@ -284,7 +284,7 @@ void AWIMPScoutDroid::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 		bOnHit = true;
 		character->DestroyTimelineComponent->Play();
 		PS_Lighting->ActivateSystem();
-		bOnHit = false;
+		
 	}
 }
 
@@ -310,6 +310,7 @@ void AWIMPScoutDroid::OnStopDetection(UPrimitiveComponent* OverlappedComp, AActo
 	if (character->IsValidLowLevel())
 	{
 		MovementTimelineComponent->Stop();
+		bOnHit = false;
 	}
 }
 
