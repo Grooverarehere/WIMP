@@ -15,7 +15,7 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
-	Mesh->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Mesh->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 	
 
 	Light = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Light"));
@@ -23,27 +23,27 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	Jet_Front = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front"));
 	Jet_Front->SetupAttachment(Mesh);
-	Jet_Front->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Jet_Front->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Front_Right = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front_Right"));
 	Jet_Front_Right->SetupAttachment(Mesh);
-	Jet_Front_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Jet_Front_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Front_Left = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front_Left"));
 	Jet_Front_Left->SetupAttachment(Mesh);
-	Jet_Front_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Jet_Front_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Back = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back"));
 	Jet_Back->SetupAttachment(Mesh);
-	Jet_Back->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Jet_Back->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Back_Right = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back_Right"));
 	Jet_Back_Right->SetupAttachment(Mesh);
-	Jet_Back_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Jet_Back_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	Jet_Back_Left = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back_Left"));
 	Jet_Back_Left->SetupAttachment(Mesh);
-	Jet_Back_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	//Jet_Back_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	ActivatePlasma = FVector(1.f, 1.f, 1.f);
 	DeactivatePlasma = FVector(0.7f, 0.7f, 0.4f);
@@ -74,18 +74,23 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	PS_Tesla_Top = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Top"));
 	PS_Tesla_Top->SetupAttachment(Mesh);
+	//PS_Tesla_Top->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	PS_Tesla_Bottom = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Bottom"));
 	PS_Tesla_Bottom->SetupAttachment(Mesh);
+	//PS_Tesla_Bottom->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	PS_Tesla_Back = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Back"));
 	PS_Tesla_Back->SetupAttachment(Mesh);
+	//PS_Tesla_Back->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	PS_Tesla_Right = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Right"));
 	PS_Tesla_Right->SetupAttachment(Mesh);
+	//PS_Tesla_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	PS_Tesla_Left = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Left"));
 	PS_Tesla_Left->SetupAttachment(Mesh);
+	//PS_Tesla_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 
 	PS_Lighting = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Lighting"));
 	PS_Lighting->SetupAttachment(Mesh);
@@ -96,7 +101,13 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 	DroidDetection = CreateDefaultSubobject<USphereComponent>(TEXT("DroidDetection"));
 	DroidDetection->SetupAttachment(Mesh);
 	DroidDetection->SetGenerateOverlapEvents(true);
+	DroidDetection->OnComponentBeginOverlap.AddDynamic(this, &AWIMPScoutDroid::OnDetection);
+	DroidDetection->OnComponentEndOverlap.AddDynamic(this, &AWIMPScoutDroid::OnStopDetection);
 
+	DroidHit = CreateDefaultSubobject<USphereComponent>(TEXT("DroidHit"));
+	DroidHit->SetupAttachment(Mesh);
+	DroidHit->SetGenerateOverlapEvents(true);
+	DroidHit->OnComponentBeginOverlap.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 	bOnHit = false;
 }
 
@@ -123,8 +134,7 @@ void AWIMPScoutDroid::BeginPlay()
 	Jet_Back->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Back_Right->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Back_Left->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
-	DroidDetection->OnComponentBeginOverlap.AddDynamic(this, &AWIMPScoutDroid::OnDetection);
-	DroidDetection->OnComponentEndOverlap.AddDynamic(this, &AWIMPScoutDroid::OnStopDetection);
+	
 	InitDroid();
 }
 
@@ -276,7 +286,7 @@ void AWIMPScoutDroid::Tick(float DeltaTime)
 	
 }
 
-void AWIMPScoutDroid::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void AWIMPScoutDroid::OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AWIMPCharacter* character = Cast<AWIMPCharacter>(OtherActor);
 	if (character->IsValidLowLevel()&&!bOnHit)

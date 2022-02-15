@@ -86,6 +86,8 @@ public:
 		class USphereComponent* DroidDetection;
 	UPROPERTY(EditAnywhere)
 		DroidType E_Droid_Type;
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+		class USphereComponent* DroidHit;
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UTimelineComponent* MovementTimelineComponent;
@@ -108,7 +110,7 @@ protected:
 	UFUNCTION()
 		void ChangePlasma();
 	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+		void OnHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 		void OnDetection(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
