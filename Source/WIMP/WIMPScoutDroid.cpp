@@ -15,7 +15,6 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
-	//Mesh->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
 	
 
 	Light = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Light"));
@@ -23,27 +22,26 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	Jet_Front = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front"));
 	Jet_Front->SetupAttachment(Mesh);
-	//Jet_Front->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	Jet_Front_Right = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front_Right"));
 	Jet_Front_Right->SetupAttachment(Mesh);
-	//Jet_Front_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	Jet_Front_Left = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Front_Left"));
 	Jet_Front_Left->SetupAttachment(Mesh);
-	//Jet_Front_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	Jet_Back = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back"));
 	Jet_Back->SetupAttachment(Mesh);
-	//Jet_Back->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
-
+	
 	Jet_Back_Right = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back_Right"));
 	Jet_Back_Right->SetupAttachment(Mesh);
-	//Jet_Back_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	Jet_Back_Left = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Jet_Back_Left"));
 	Jet_Back_Left->SetupAttachment(Mesh);
-	//Jet_Back_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	ActivatePlasma = FVector(1.f, 1.f, 1.f);
 	DeactivatePlasma = FVector(0.7f, 0.7f, 0.4f);
@@ -74,23 +72,23 @@ AWIMPScoutDroid::AWIMPScoutDroid()
 
 	PS_Tesla_Top = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Top"));
 	PS_Tesla_Top->SetupAttachment(Mesh);
-	//PS_Tesla_Top->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	PS_Tesla_Bottom = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Bottom"));
 	PS_Tesla_Bottom->SetupAttachment(Mesh);
-	//PS_Tesla_Bottom->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	PS_Tesla_Back = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Back"));
 	PS_Tesla_Back->SetupAttachment(Mesh);
-	//PS_Tesla_Back->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	PS_Tesla_Right = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Right"));
 	PS_Tesla_Right->SetupAttachment(Mesh);
-	//PS_Tesla_Right->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	PS_Tesla_Left = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Tesla_Left"));
 	PS_Tesla_Left->SetupAttachment(Mesh);
-	//PS_Tesla_Left->OnComponentHit.AddDynamic(this, &AWIMPScoutDroid::OnHit);
+	
 
 	PS_Lighting = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PS_Lighting"));
 	PS_Lighting->SetupAttachment(Mesh);
@@ -116,8 +114,7 @@ void AWIMPScoutDroid::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//InitPosition = Mesh->GetRelativeLocation();
-	//EndPosition = FVector(Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z+Distance);
+	
 	UpdateFunctionFloat.BindDynamic(this, &AWIMPScoutDroid::UpdateTimelineFunction);
 	FinishedFunctionFloat.BindUFunction(this,"FinishedTimelineFunction");
 	if (MovementTimelineComponent)
@@ -125,7 +122,7 @@ void AWIMPScoutDroid::BeginPlay()
 		MovementTimelineComponent->AddInterpFloat(MovementTimelineCurve, UpdateFunctionFloat);
 		MovementTimelineComponent->SetTimelineFinishedFunc(FinishedFunctionFloat);
 	}
-	//E_Movement_Type = MovementType::UP_START;
+	
 	Mesh->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Light->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
 	Jet_Front->SetScalarParameterValueOnMaterials("Emissive_Power", 1.0f);
