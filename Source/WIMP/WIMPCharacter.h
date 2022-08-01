@@ -34,7 +34,7 @@ public:
 		class UNiagaraSystem* SpawnEffect;
 	UPROPERTY(EditAnywhere)
 		UAudioComponent* RespawnSound;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 		UTimelineComponent* DestroyTimelineComponent;
 	UPROPERTY(EditAnywhere)
 		UCurveFloat* DestroyTimelineCurve;
